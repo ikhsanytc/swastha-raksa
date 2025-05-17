@@ -1,0 +1,33 @@
+- Email untuk sekarang ga ada di masa prototype, bakal ada lagi di masa production
+
+Alur Penggunaan Aplikasi Swastha Raksa
+
+Alur Pendaftaran (udh kelar)
+1. pengguna akan mengklik tombol daftar
+2. lalu pengguna akan meng-scan KTP untuk mendapatkan UID NFC KTP
+3. lalu pengguna akan diminta username dan password untuk membuat akun
+4. akunnya dibuat dan akan mendapatkan semacam kunci autentikasi lalu pengguna bisa mulai menggunakan aplikasi
+
+Alur Login (udh kelar)
+1. pengguna mengklik tombol login
+2. lalu pengguna akan meng-scan KTP untuk mendapatkan UID NFC KTP
+3. server akan mengecek apakah UID NFC KTP sudah terdaftar apabila tidak maka akan dialihkan ke halaman daftar, apabila iya
+4. pengguna akan diminta memasukan username dan password dan juga diminta apakah akun ini adalah pembeli/penjual
+5. Proses verifikasi di server apabila berhasil maka aplikasi akan mendapatkan semacam kunci autentikasi
+
+Fitur Penjual
+1. Penjual bisa membuat sebuah list item untuk mendata stok produk tembakau setiap item ada data mengenai nama merek, jenis, harga, jumlah stok
+2. Penjual bisa mengkonfirmasi transaksi caranya nanti penjual akan meng-scan KTP pembeli dan pilih produk yang dijual apabila KTP terdaftar maka stok dikurangi dan data transaksi ditambahkan ke akun pembeli
+3. Penjual bisa melihat history penjualan produk tembakau
+4. Penjual bisa berhenti berjualan dan beralih ke pembeli
+
+Fitur pembeli
+1. Pembeli bisa melihat history transaksi produk tembakau yang mereka beli
+2. Pembeli bisa beralih menjadi penjual kapan saja
+
+Pengaturan Akun
+1. Menambahkan email (membutuhkan verifikasi password)
+2. Mengubah username.
+3. Mengubah password (membutuhkan verifikasi email)
+4. Menambahkan profile picture
+5. Menambahkan data toko (khusus penjual)
