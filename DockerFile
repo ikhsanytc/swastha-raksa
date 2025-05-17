@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# Install dependencies
+# Install ekstensi yang diperlukan CI4
 RUN apt-get update && apt-get install -y \
     libicu-dev libonig-dev unzip git curl \
     && docker-php-ext-install intl mbstring pdo pdo_mysql
@@ -8,26 +8,25 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Set working directory
+# Set working dir
 WORKDIR /var/www/html
 
 # Copy source code
 COPY . .
 
-# Install PHP dependencies
+# Install dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Enable rewrite module
+# Konfigurasi Apache dan Rewrite
 RUN a2enmod rewrite
 
-# Set public as Apache doc root
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+# Ganti DocumentRoot ke /var/www/html/public
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 
 RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf \
     && sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf
 
-# Inject Railway PORT to Apache
-COPY apache-start.sh /apache-start.sh
-RUN chmod +x /apache-start.sh
+# Railway akan inject ENV PORT, jadi Apache harus listen ke itu
+EXPOSE $PORT
 
-CMD ["/apache-start.sh"]
+CMD apache2-foreground
