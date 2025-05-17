@@ -29,7 +29,7 @@ RUN a2enmod rewrite
 COPY . /var/www/html/
 
 # Buat folder writable yang diperlukan dan atur permission dan ownership-nya
-RUN mkdir -p /var/www/html/writable/database && \
+RUN mkdir -p /var/www/html/writable/database /var/www/html/writable/cache /var/www/html/writable/session /var/www/html/writable/logs /var/www/html/writable/uploads /var/www/html/writable/debugbar && \
     touch /var/www/html/writable/database/db.sqlite && \
     chown -R www-data:www-data /var/www/html/writable/database && \
     chmod -R 775 /var/www/html/writable/database
