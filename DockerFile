@@ -1,42 +1,33 @@
 FROM php:8.2-apache
 
-# Install dependencies yang dibutuhkan untuk PHP extensions dan composer
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    libicu-dev \
-    libonig-dev \
-    unzip \
-    git \
-    curl \
-    && docker-php-ext-install intl mbstring pdo pdo_mysql mysqli \
-    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    libicu-dev libonig-dev unzip git curl \
+    && docker-php-ext-install intl mbstring pdo pdo_mysql
 
-# Copy composer files dulu (biar cache Docker bisa dipakai)
-COPY composer.json composer.lock /var/www/html/
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-WORKDIR /var/www/html/
+# Set working directory
+WORKDIR /var/www/html
 
-# Install composer dependencies tanpa dev untuk production
+# Copy source code
+COPY . .
+
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Copy source code lainnya
-COPY . /var/www/html/
-
-# Set permission
-RUN chown -R www-data:www-data /var/www/html/
-
-# Enable mod_rewrite untuk CI4
+# Enable rewrite module
 RUN a2enmod rewrite
 
-# Apache config untuk public folder
-RUN echo '<Directory /var/www/html/public>\n\
-    Options Indexes FollowSymLinks\n\
-    AllowOverride All\n\
-    Require all granted\n\
-</Directory>' > /etc/apache2/conf-available/codeigniter.conf && \
-    a2enconf codeigniter
+# Set public as Apache doc root
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
-WORKDIR /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf \
+    && sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf
 
-EXPOSE 80
+# Inject Railway PORT to Apache
+COPY apache-start.sh /apache-start.sh
+RUN chmod +x /apache-start.sh
 
-CMD ["apache2-foreground"]
+CMD ["/apache-start.sh"]
