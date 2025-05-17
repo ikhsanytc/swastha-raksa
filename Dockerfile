@@ -1,25 +1,22 @@
-# Gunakan image PHP bawaan dengan Apache
 FROM php:8.2-apache
 
-# Install extensions PHP yang dibutuhkan CodeIgniter 4
-RUN apt-get update && apt-get install -y \
-    unzip \
-    libzip-dev \
-    zip \
-    && docker-php-ext-install zip pdo pdo_mysql
+# Install ekstensi PHP yang diperlukan
+RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# Aktifkan mod_rewrite untuk Apache (CI4 butuh untuk routing)
+# Aktifkan mod_rewrite
 RUN a2enmod rewrite
 
-# Copy project ke dalam container
-COPY . /var/www/html
+# Copy semua file ke folder kerja container
+COPY . /var/www/html/
 
-# Set working directory
-WORKDIR /var/www/html
+# Ubah document root Apache ke /var/www/html/public
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 
-# Ubah permission writable folder
-RUN chown -R www-data:www-data /var/www/html/writable \
-    && chmod -R 775 /var/www/html/writable
+# Sesuaikan konfigurasi Apache
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
+    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Expose port 80
+# Ubah permission supaya Apache bisa akses file
+RUN chown -R www-data:www-data /var/www/html
+
 EXPOSE 80
