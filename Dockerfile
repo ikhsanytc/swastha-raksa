@@ -12,23 +12,32 @@ RUN apt-get update && apt-get install -y \
     pdo \
     pdo_mysql
 
+# Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-# Aktifkan mod_rewrite
+
+# Aktifkan mod_rewrite Apache
 RUN a2enmod rewrite
 
-# Copy semua file ke folder kerja container
+# Copy source code ke folder kerja container
 COPY . /var/www/html/
 
-RUN composer install --no-dev
+# Buat folder writable yang diperlukan dan atur permission dan ownership-nya
+RUN mkdir -p /var/www/html/writable/cache /var/www/html/writable/logs /var/www/html/writable/session && \
+    chown -R www-data:www-data /var/www/html/writable && \
+    chmod -R 775 /var/www/html/writable
 
-# Ubah document root Apache ke /var/www/html/public
+# Install dependencies composer tanpa dev dan optimasi autoloader
+RUN composer install --no-dev --optimize-autoloader
+
+# Ubah document root Apache ke folder public di CI4
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 
-# Sesuaikan konfigurasi Apache
+# Sesuaikan konfigurasi Apache untuk document root
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
     && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Ubah permission supaya Apache bisa akses file
-RUN chown -R www-data:www-data /var/www/html
+# Pastikan ownership dan permission agar Apache dapat akses penuh
+RUN chown -R www-data:www-data /var/www/html && \
+    chmod -R 775 /var/www/html/writable
 
 EXPOSE 80
