@@ -1,22 +1,34 @@
 FROM php:8.2-apache
 
-# Install ekstensi PHP yang diperlukan
+# Install dependencies dan Composer
+RUN apt-get update && apt-get install -y \
+    unzip \
+    git \
+    zip \
+    && curl -sS https://getcomposer.org/installer | php \
+    && mv composer.phar /usr/local/bin/composer
+
+# Install ekstensi PHP
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
 # Aktifkan mod_rewrite
 RUN a2enmod rewrite
 
-# Copy semua file ke folder kerja container
-COPY . /var/www/html/
+# Set working directory dan salin semua file
+WORKDIR /var/www/html
+COPY . .
 
-# Ubah document root Apache ke /var/www/html/public
+# Jalankan composer install untuk install dependensi CI4
+RUN composer install
+
+# Ubah document root ke public
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 
-# Sesuaikan konfigurasi Apache
+# Update konfigurasi apache
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
     && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Ubah permission supaya Apache bisa akses file
+# Pastikan file dapat dibaca Apache
 RUN chown -R www-data:www-data /var/www/html
 
 EXPOSE 80
