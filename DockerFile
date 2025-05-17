@@ -1,21 +1,33 @@
 FROM php:8.2-apache
 
-# Install dependencies yang diperlukan untuk ekstensi intl dan mbstring
+# Install dependencies yang dibutuhkan untuk PHP extensions dan composer
 RUN apt-get update && apt-get install -y \
     libicu-dev \
     libonig-dev \
-    && docker-php-ext-install intl mbstring pdo pdo_mysql mysqli
+    unzip \
+    git \
+    curl \
+    && docker-php-ext-install intl mbstring pdo pdo_mysql mysqli \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Copy source code ke dalam container
+# Copy composer files dulu (biar cache Docker bisa dipakai)
+COPY composer.json composer.lock /var/www/html/
+
+WORKDIR /var/www/html/
+
+# Install composer dependencies tanpa dev untuk production
+RUN composer install --no-dev --optimize-autoloader
+
+# Copy source code lainnya
 COPY . /var/www/html/
 
 # Set permission
 RUN chown -R www-data:www-data /var/www/html/
 
-# Enable mod_rewrite untuk CI4 URL rewriting
+# Enable mod_rewrite untuk CI4
 RUN a2enmod rewrite
 
-# Apache config agar URL rewriting aktif di folder public
+# Apache config untuk public folder
 RUN echo '<Directory /var/www/html/public>\n\
     Options Indexes FollowSymLinks\n\
     AllowOverride All\n\
