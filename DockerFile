@@ -1,0 +1,30 @@
+FROM php:8.2-apache
+
+# Install dependencies yang diperlukan untuk ekstensi intl dan mbstring
+RUN apt-get update && apt-get install -y \
+    libicu-dev \
+    libonig-dev \
+    && docker-php-ext-install intl mbstring pdo pdo_mysql mysqli
+
+# Copy source code ke dalam container
+COPY . /var/www/html/
+
+# Set permission
+RUN chown -R www-data:www-data /var/www/html/
+
+# Enable mod_rewrite untuk CI4 URL rewriting
+RUN a2enmod rewrite
+
+# Apache config agar URL rewriting aktif di folder public
+RUN echo '<Directory /var/www/html/public>\n\
+    Options Indexes FollowSymLinks\n\
+    AllowOverride All\n\
+    Require all granted\n\
+</Directory>' > /etc/apache2/conf-available/codeigniter.conf && \
+    a2enconf codeigniter
+
+WORKDIR /var/www/html/public
+
+EXPOSE 80
+
+CMD ["apache2-foreground"]
