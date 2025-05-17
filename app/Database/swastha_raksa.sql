@@ -105,7 +105,7 @@ CREATE TABLE `swastha_raksa_users` (
   `username` varchar(255) NOT NULL,
   `email` varchar(255) DEFAULT NULL,
   `password` text NOT NULL,
-  `profile_picture` text DEFAULT 'nophoto.jpg',
+  `profile_picture` text,
   `tipe_akun` enum('Pembeli','Penjual') NOT NULL DEFAULT 'Pembeli',
   `data_toko` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`data_toko`)),
   `created_at` datetime DEFAULT NULL,

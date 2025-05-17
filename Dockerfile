@@ -10,7 +10,8 @@ RUN apt-get update && apt-get install -y \
     intl \
     mysqli \
     pdo \
-    pdo_mysql
+    pdo_mysql \
+    pdo_sqlite
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -22,9 +23,11 @@ RUN a2enmod rewrite
 COPY . /var/www/html/
 
 # Buat folder writable yang diperlukan dan atur permission dan ownership-nya
-RUN mkdir -p /var/www/html/writable/cache /var/www/html/writable/logs /var/www/html/writable/session && \
-    chown -R www-data:www-data /var/www/html/writable && \
-    chmod -R 775 /var/www/html/writable
+RUN mkdir -p /var/www/html/writable/database && \
+    touch /var/www/html/writable/database/db.sqlite && \
+    chown -R www-data:www-data /var/www/html/writable/database && \
+    chmod -R 775 /var/www/html/writable/database
+
 
 # Install dependencies composer tanpa dev dan optimasi autoloader
 RUN composer install --no-dev --optimize-autoloader
