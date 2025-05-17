@@ -1,32 +1,19 @@
-FROM php:8.2-apache
+FROM php:8.2-cli
 
-# Install ekstensi yang diperlukan CI4
+# Install extension
 RUN apt-get update && apt-get install -y \
-    libicu-dev libonig-dev unzip git curl \
+    unzip git curl libicu-dev libonig-dev \
     && docker-php-ext-install intl mbstring pdo pdo_mysql
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Set working dir
-WORKDIR /var/www/html
-
-# Copy source code
+# Copy source
+WORKDIR /app
 COPY . .
 
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Konfigurasi Apache dan Rewrite
-RUN a2enmod rewrite
-
-# Ganti DocumentRoot ke /var/www/html/public
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-
-RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf \
-    && sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf
-
-# Railway akan inject ENV PORT, jadi Apache harus listen ke itu
-EXPOSE $PORT
-
-CMD apache2-foreground
+# Jalankan spark serve
+CMD ["sh", "-c", "php spark serve --host=0.0.0.0 --port=${PORT:-8080}"]
