@@ -6,8 +6,10 @@ RUN apt-get update && apt-get install -y \
     unzip \
     zip \
     libicu-dev \
-    libsqlite3-dev \  # ⬅️ Tambahan penting
-    docker-php-ext-install \
+    libsqlite3-dev
+
+# Install ekstensi PHP
+RUN docker-php-ext-install \
     intl \
     mysqli \
     pdo \
