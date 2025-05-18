@@ -44,7 +44,7 @@ RUN composer install --no-dev --optimize-autoloader
 # Ubah document root Apache ke folder public di CI4
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 
-RUN php /var/www/html/spark migrate:refresh
+RUN yes | php /var/www/html/spark migrate:refresh
 
 # Sesuaikan konfigurasi Apache untuk document root
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
