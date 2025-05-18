@@ -29,7 +29,6 @@ class CreateUsers extends Migration
             'profile_picture' => [
                 'type' => 'TEXT',
                 'null' => true,
-                'default' => 'nophoto.jpg'
             ],
             'tipe_akun' => [
                 'type' => 'ENUM',

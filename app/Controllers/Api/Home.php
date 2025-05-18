@@ -286,46 +286,100 @@ class Home extends BaseController
     public function addTransaction()
     {
         try {
+            $products_request = $this->request->getVar('products');
             $uid_buyer = $this->request->getVar('uid_buyer');
-            $id_produk = $this->request->getVar('id_produk');
             $uid = AuthUser::get()->uid;
             $userInfo = $this->usersModel->where('uid', $uid)->first();
-            $data_produk = $this->productsModel->find($id_produk);
-            if (!$uid_buyer || !$id_produk) {
+            $userInfoPembeli = $this->usersModel->where('uid', $uid_buyer)->first();
+            if (!$products_request || !$uid_buyer) {
                 return $this->respond([
                     'error' => true,
-                    'message' => 'Uid buyer, dan id produk dibutuhkan'
+                    'message' => 'Products dan uid_buyer dibutuhkan'
                 ], 400);
             }
-            if (!$data_produk) {
+            if (!$userInfoPembeli) {
                 return $this->respond([
                     'error' => true,
-                    'message' => 'Produk tidak ada dengan id = ' . $id_produk
-                ], 400);
-            }
-            if ($data_produk['owner_uid'] !== $uid) {
-                return $this->respond([
-                    'error' => true,
-                    'message' => 'Produk dengan id = ' . $id_produk . ' bukan punya anda'
+                    'message' => 'Tidak ada user pembeli dengan uid = ' . $uid_buyer
                 ], 401);
             }
+            $products = json_decode($products_request, true);
+            if (!is_array($products)) {
+                return $this->respond([
+                    'error' => true,
+                    'message' => 'Products bukan array'
+                ], 400);
+            }
+
             if ($userInfo['tipe_akun'] !== "Penjual") {
                 return $this->respond([
                     'error' => true,
                     'message' => 'Kamu bukan penjual'
                 ], 401);
             }
-            $data_produk_filter = array_filter($data_produk, fn($k) => $k !== 'owner_uid' && $k !== 'stok_product', ARRAY_FILTER_USE_KEY);
-            $this->transactionModel->save([
-                'seller_uid' => $uid,
-                'buyer_uid' => $uid_buyer,
-                'transaction_time' => time(),
-                'product_data' => json_encode($data_produk_filter)
-            ], 200);
-            $this->productsModel->save([
-                'product_id' => $id_produk,
-                'stok_product' => $data_produk['stok_product'] - 1
-            ]);
+            foreach ($products as $index => $product) {
+                if (!isset($product['id_produk']) || !isset($product['jumlah_produk'])) {
+                    return $this->respond([
+                        'error' => true,
+                        'message' => 'Data ke-' . $index . ' tidak valid'
+                    ], 400);
+                }
+                $product_database = $this->productsModel->find($product['id_produk']);
+                if (!$product_database) {
+                    return $this->respond([
+                        'error' => true,
+                        'message' => 'Pada data ke-' . $index . ' tidak ada id_produk dengan id = ' . $product['id_produk']
+                    ], 400);
+                }
+                $informasiOwner = $this->usersModel->where('uid', $product_database['owner_uid'])->first();
+                if (!$informasiOwner) {
+                    return $this->respond([
+                        'error' => true,
+                        'message' => "Informasi User pada data ke-$index tidak ada atau tidak ditemukan"
+                    ], 400);
+                }
+                $total_harga = intval($product_database['harga_product']) * intval($product['jumlah_produk']);
+                $product_data = [
+                    'id_produk' => $product['id_produk'],
+                    'nama_penjual' => $informasiOwner['username'],
+                    'nama_pembeli' => $userInfoPembeli['username'],
+                    'jumlah_produk' => $product['jumlah_produk'],
+                    'total_harga' => $total_harga,
+                    'nama_produk' => $product_database['nama_product'],
+                    'jenis_produk' => $product_database['jenis_product'],
+                    'harga_produk' => $product_database['harga_product']
+                ];
+                if ($product_database['stok_product'] == 0) {
+                    return $this->respond([
+                        'error' => true,
+                        'message' => "Produk {$product_database['nama_product']} telah habis stoknya"
+                    ], 409);
+                }
+                $this->productsModel->save([
+                    'product_id' => $product['id_produk'],
+                    'stok_product' => $product_database['stok_product'] - $product['jumlah_produk']
+                ]);
+                $this->transactionModel->save([
+                    'seller_uid' => $uid,
+                    'buyer_uid' => $uid_buyer,
+                    'transaction_time' => time(),
+                    'product_data' => json_encode($product_data)
+                ]);
+            }
+
+
+
+            // $data_produk_filter = array_filter($data_produk, fn($k) => $k !== 'owner_uid' && $k !== 'stok_product', ARRAY_FILTER_USE_KEY);
+            // $this->transactionModel->save([
+            //     'seller_uid' => $uid,
+            //     'buyer_uid' => $uid_buyer,
+            //     'transaction_time' => time(),
+            //     'product_data' => json_encode($data_produk_filter)
+            // ], 200);
+            // $this->productsModel->save([
+            //     'product_id' => $id_produk,
+            //     'stok_product' => $data_produk['stok_product'] - 1
+            // ]);
             return $this->respond([
                 'error' => false,
                 'message' => 'Berhasil'
