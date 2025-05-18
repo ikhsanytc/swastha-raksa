@@ -23,6 +23,11 @@ class CreateUsers extends Migration
                 'constraint' => 255,
                 'null' => true,
             ],
+            'nik' => [
+                'type' => 'VARCHAR',
+                'constraint' => 255,
+                'null' => true,
+            ],
             'password' => [
                 'type' => 'TEXT',
             ],

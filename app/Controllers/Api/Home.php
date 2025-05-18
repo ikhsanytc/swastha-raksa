@@ -317,6 +317,12 @@ class Home extends BaseController
                     'message' => 'Kamu bukan penjual'
                 ], 401);
             }
+            if ($userInfo['uid'] == $userInfoPembeli['uid']) {
+                return $this->respond([
+                    'error' => true,
+                    'message' => 'Tidak bisa melakukan transaksi ke akun yg sama'
+                ], 400);
+            }
             foreach ($products as $index => $product) {
                 if (!isset($product['id_produk']) || !isset($product['jumlah_produk'])) {
                     return $this->respond([

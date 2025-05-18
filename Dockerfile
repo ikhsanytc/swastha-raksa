@@ -31,9 +31,12 @@ COPY . /var/www/html/
 # Buat folder writable yang diperlukan dan atur permission dan ownership-nya
 RUN mkdir -p /var/www/html/writable/database /var/www/html/writable/cache /var/www/html/writable/session /var/www/html/writable/logs /var/www/html/writable/uploads /var/www/html/writable/debugbar && \
     touch /var/www/html/writable/database/db.sqlite && \
-    chown -R www-data:www-data /var/www/html/writable/database && \
-    chmod -R 775 /var/www/html/writable/database
+    chown -R www-data:www-data /var/www/html/writable && \
+    chmod -R 775 /var/www/html/writable
 
+RUN mkdir -p /var/www/html/uploads && \
+    chown -R www-data:www-data /var/www/html/uploads && \
+    chmod -R 775 /var/www/html/uploads
 
 # Install dependencies composer tanpa dev dan optimasi autoloader
 RUN composer install --no-dev --optimize-autoloader
@@ -41,7 +44,7 @@ RUN composer install --no-dev --optimize-autoloader
 # Ubah document root Apache ke folder public di CI4
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 
-RUN php /var/www/html/spark migrate
+RUN php /var/www/html/spark migrate:refresh
 
 # Sesuaikan konfigurasi Apache untuk document root
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \

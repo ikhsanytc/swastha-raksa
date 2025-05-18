@@ -208,6 +208,7 @@ class Auth extends BaseController
                     'auth_key' => $authKey,
                     'username' => $user['username'],
                     'email' => $user['email'],
+                    'nik' => $user['nik'],
                     'profile_picture' => base_url("/uploads/{$user['profile_picture']}"),
                     'tipe_akun' => $user['tipe_akun'],
                     'data_toko' => $user['data_toko'],
@@ -230,6 +231,7 @@ class Auth extends BaseController
             $username = $this->request->getVar('username');
             $password = $this->request->getVar('password');
             $tipe_akun = $this->request->getVar('tipe_akun');
+            $nik = $this->request->getVar('nik');
             $profile_picture = $this->request->getFile('profile_picture');
             $user_check_username = $this->usersModel->where('username', $username)->first();
             $user_check_uid_ktp = $this->usersModel->where('uid', $uid_ktp)->first();
@@ -272,6 +274,7 @@ class Auth extends BaseController
             $this->usersModel->insert([
                 'uid' => $uid_ktp,
                 'username' => $username,
+                'nik' => $nik ?? null,
                 'password' => password_hash($password, PASSWORD_DEFAULT),
                 'profile_picture' => $nameProfile,
                 'tipe_akun' => $tipe_akun ?? 'Pembeli'
@@ -283,6 +286,7 @@ class Auth extends BaseController
                 'data' => [
                     'auth_key' => $auth_key,
                     'username' => $username,
+                    'nik' => $nik ?? '',
                     'email' => '',
                     'profile_picture' => base_url("/uploads/$nameProfile"),
                     'tipe_akun' => $tipe_akun ?? 'Pembeli',
