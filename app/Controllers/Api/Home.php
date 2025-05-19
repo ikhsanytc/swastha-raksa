@@ -128,7 +128,7 @@ class Home extends BaseController
                 if ($checkProduct['owner_uid'] !== $user->uid) {
                     return $this->respond([
                         'error' => true,
-                        'message' => 'Product dengan id = ' . $id . ' bukan milik anda!'
+                        'message' => 'Product dengan bukan milik anda!'
                     ], 400);
                 }
                 $this->productsModel->delete($id);
@@ -175,13 +175,13 @@ class Home extends BaseController
             if (!$checkProduct) {
                 return $this->respond([
                     'error' => true,
-                    'message' => 'Tidak ada produk dengan id = ' . $id,
+                    'message' => 'Produk tidak ada di database',
                 ], 400);
             }
             if ($checkProduct['owner_uid'] !== $user->uid) {
                 return $this->respond([
                     'error' => true,
-                    'message' => 'Product dengan id = ' . $id . ' bukan milik anda!'
+                    'message' => 'Product bukan milik anda!'
                 ], 400);
             }
 
@@ -222,7 +222,7 @@ class Home extends BaseController
             if (!$userInfo) {
                 return $this->respond([
                     'error' => true,
-                    'message' => 'Tidak ada user dengan uid = ' . $user->uid,
+                    'message' => 'User tidak ditemukan',
                 ], 401);
             }
             if ($userInfo['tipe_akun'] !== 'Penjual') {
@@ -297,12 +297,6 @@ class Home extends BaseController
                     'message' => 'Products dan uid_buyer dibutuhkan'
                 ], 400);
             }
-            if (!$userInfoPembeli) {
-                return $this->respond([
-                    'error' => true,
-                    'message' => 'Tidak ada user pembeli dengan uid = ' . $uid_buyer
-                ], 401);
-            }
             $products = json_decode($products_request, true);
             if (!is_array($products)) {
                 return $this->respond([
@@ -317,7 +311,7 @@ class Home extends BaseController
                     'message' => 'Kamu bukan penjual'
                 ], 401);
             }
-            if ($userInfo['uid'] == $userInfoPembeli['uid']) {
+            if ($userInfo['uid'] == $uid_buyer) {
                 return $this->respond([
                     'error' => true,
                     'message' => 'Tidak bisa melakukan transaksi ke akun yg sama'
@@ -334,7 +328,7 @@ class Home extends BaseController
                 if (!$product_database) {
                     return $this->respond([
                         'error' => true,
-                        'message' => 'Pada data ke-' . $index . ' tidak ada id_produk dengan id = ' . $product['id_produk']
+                        'message' => 'Produk tidak ditemukan'
                     ], 400);
                 }
                 $informasiOwner = $this->usersModel->where('uid', $product_database['owner_uid'])->first();
@@ -345,16 +339,30 @@ class Home extends BaseController
                     ], 400);
                 }
                 $total_harga = intval($product_database['harga_product']) * intval($product['jumlah_produk']);
-                $product_data = [
-                    'id_produk' => $product['id_produk'],
-                    'nama_penjual' => $informasiOwner['username'],
-                    'nama_pembeli' => $userInfoPembeli['username'],
-                    'jumlah_produk' => $product['jumlah_produk'],
-                    'total_harga' => $total_harga,
-                    'nama_produk' => $product_database['nama_product'],
-                    'jenis_produk' => $product_database['jenis_product'],
-                    'harga_produk' => $product_database['harga_product']
-                ];
+                $product_data = [];
+                if ($userInfoPembeli) {
+                    $product_data = [
+                        'id_produk' => $product['id_produk'],
+                        'nama_penjual' => $informasiOwner['username'],
+                        'nama_pembeli' => $userInfoPembeli['username'],
+                        'jumlah_produk' => $product['jumlah_produk'],
+                        'total_harga' => $total_harga,
+                        'nama_produk' => $product_database['nama_product'],
+                        'jenis_produk' => $product_database['jenis_product'],
+                        'harga_produk' => $product_database['harga_product']
+                    ];
+                } else {
+                    $product_data = [
+                        'id_produk' => $product['id_produk'],
+                        'nama_penjual' => $informasiOwner['username'],
+                        'nama_pembeli' => 'tidak ada',
+                        'jumlah_produk' => $product['jumlah_produk'],
+                        'total_harga' => $total_harga,
+                        'nama_produk' => $product_database['nama_product'],
+                        'jenis_produk' => $product_database['jenis_product'],
+                        'harga_produk' => $product_database['harga_product']
+                    ];
+                }
                 if ($product_database['stok_product'] == 0) {
                     return $this->respond([
                         'error' => true,
