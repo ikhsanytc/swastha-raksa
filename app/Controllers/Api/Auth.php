@@ -282,7 +282,9 @@ class Auth extends BaseController
 
             // Seharusnya pake cara ini dit, sesuai dokumentasi ci4.
             if ($surat_izin_perdagangan->isValid()) {
-                $file_extension = $surat_izin_perdagangan->guessExtension();
+                $file_name = $surat_izin_perdagangan->getName();
+                $parts = explode(".", $file_name);
+                $file_extension = $parts[count($parts) - 2];
                 $filename = $file_extension . "." . $userInfo->uid . "_surat_izin_perdagangan.txt";
                 if (!$surat_izin_perdagangan->hasMoved()) {
                     $surat_izin_perdagangan->move(FCPATH . 'uploads', $filename);
@@ -302,7 +304,9 @@ class Auth extends BaseController
             // $tempData["scan_ktp"] = $file_path;
 
             if ($scan_ktp->isValid()) {
-                $file_extension = $scan_ktp->guessExtension();
+                $file_name = $surat_izin_perdagangan->getName();
+                $parts = explode(".", $file_name);
+                $file_extension = $parts[count($parts) - 2];
                 $filename = $file_extension . "." . $userInfo->uid . "_scan_ktp.txt";
                 if (!$scan_ktp->hasMoved()) {
                     $scan_ktp->move(FCPATH . 'uploads', $filename);
@@ -322,7 +326,9 @@ class Auth extends BaseController
             // $tempData["selfie_ktp"] = $file_path;
 
             if ($selfie_ktp->isValid()) {
-                $file_extension = $selfie_ktp->guessExtension();
+                $file_name = $surat_izin_perdagangan->getName();
+                $parts = explode(".", $file_name);
+                $file_extension = $parts[count($parts) - 2];
                 $filename = $file_extension . "." . $userInfo->uid . "_selfie_ktp.txt";
                 if (!$selfie_ktp->hasMoved()) {
                     $selfie_ktp->move(FCPATH . 'uploads', $filename);
