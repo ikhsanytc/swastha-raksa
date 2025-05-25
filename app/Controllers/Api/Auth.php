@@ -90,6 +90,7 @@ class Auth extends BaseController
             $userInfo = AuthUser::get();
             $username = $this->request->getVar('username');
             $password = $this->request->getVar('password');
+            $password_old = $this->request->getVar('password_old');
             $email = $this->request->getVar('email');
             $data_toko = $this->request->getVar('data_toko');
             $profile_picture = $this->request->getFile('profile_picture');
@@ -114,9 +115,19 @@ class Auth extends BaseController
                     ], 400);
                 }
             }
-            if ($password) {
+            if ($password && $password_old) {
                 if (preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/', $password)) {
-                    $data['password'] = password_hash($password, PASSWORD_DEFAULT);
+
+                    $password_hashed = password_hash($password, PASSWORD_DEFAULT);
+
+                    if (password_verify($password_old, $data_lama_user['password'])) {
+                        $data['password'] = $password_hashed;
+                    } else {
+                        return $this->respond([
+                            'error' => true,
+                            'message' => 'Password salah'
+                        ], 400);
+                    }
                 } else {
                     return $this->respond([
                         'error' => true,
@@ -125,23 +136,46 @@ class Auth extends BaseController
                 }
             }
             if ($email) {
-                $data['email'] = $email;
+
+                // Ini kodenya gw ubah
+                // jadi dia ngecek dulu ini emailnya valid atau gk
+                // kalau gk nanti dia error
+
+                if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $data['email'] = $email;
+                } else {
+                    return $this->respond([
+                        'error' => true,
+                        'message' => 'Email tidak valid'
+                    ], 400);
+                }
             }
             if ($profile_picture && $profile_picture->isValid()) {
-                if (!in_array($profile_picture->getClientExtension(), ['jpg', 'jpeg', 'png'])) {
+
+                // Ini kodenya juga gw ubah
+                // karena Godot tidak mendukung upload jenis JPG/PNG
+                // jadi gw ubah dulu datanya ke bentuk teks yang nanti bakal di parse lagi di client
+
+                if (!in_array($profile_picture->getClientExtension(), ['jpg', 'jpeg', 'png', 'txt'])) {
                     return $this->respond([
                         'error' => true,
                         'message' => 'Hanya ekstensi jpg, jpeg, png yang diperbolehkan'
                     ], 415);
                 }
-                if ($profile_picture->getSizeByBinaryUnit(\CodeIgniter\Files\FileSizeUnit::MB) > 2) {
+                if ($profile_picture->getSizeByBinaryUnit(\CodeIgniter\Files\FileSizeUnit::MB) > 10) {
                     return $this->respond([
                         'error' => true,
-                        'message' => 'Maksimal 2 MB size gambarnya'
+                        'message' => 'Maksimal 10 MB size gambarnya'
                     ], 413);
                 }
+
+                $profile_picture_actual_type = explode(".", $profile_picture->getName());
+                $profile_picture_actual_type = $profile_picture_actual_type[count($profile_picture_actual_type) - 2];
                 $profile_name = $profile_picture->getRandomName();
+                $profile_name = $profile_picture_actual_type . "." . $profile_name;
+
                 $profile_picture->move(FCPATH . 'uploads', $profile_name);
+
                 if ($data_lama_user['profile_picture'] !== 'nophoto.jpg') {
                     unlink(FCPATH . 'uploads/' . $data_lama_user['profile_picture']);
                 }
@@ -160,6 +194,145 @@ class Auth extends BaseController
                     'data' => $filter,
                 ], 201);
             }
+            return $this->respond([
+                'error' => false,
+                'message' => 'Tidak ada yg diubah'
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond([
+                'error' => true,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+    /**
+     * Fungsinya untuk mengedit data toko pengguna
+     */
+    public function editDataToko()
+    {
+        try {
+
+            $userInfo = AuthUser::get();
+            $alamat = $this->request->getVar("alamat");
+            $nama = $this->request->getVar("nama");
+            $jenis = $this->request->getVar("jenis");
+            $nib = $this->request->getVar("nib");
+            // $surat_izin_perdagangan = $this->request->getFile('surat_izin_perdagangan');
+            $data_lama_user = $this->usersModel->where('uid', $userInfo->uid)->first();
+
+            if (!$data_lama_user) {
+                return $this->respond([
+                    'error' => true,
+                    'message' => 'Akun anda tidak ditemukan'
+                ], 401);
+            }
+
+            // Upload dokumen dokumen penting
+            $tempData = [];
+
+            // Validasi input file
+            $validationRule = [
+                'surat_izin_perdagangan' => [
+                    'label' => 'File',
+                    'rules' => [
+                        'uploaded[surat_izin_perdagangan]',
+                        'mime_in[surat_izin_perdagangan,text/plain]',
+                        'max_size[surat_izin_perdagangan,10000]',
+                    ],
+                ],
+                'scan_ktp' => [
+                    'label' => 'File',
+                    'rules' => [
+                        'uploaded[scan_ktp]',
+                        'mime_in[scan_ktp,text/plain]',
+                        'max_size[scan_ktp,10000]',
+                    ],
+                ],
+                'selfie_ktp' => [
+                    'label' => 'File',
+                    'rules' => [
+                        'uploaded[selfie_ktp]',
+                        'mime_in[selfie_ktp,text/plain]',
+                        'max_size[selfie_ktp,10000]',
+                    ],
+                ],
+            ];
+
+            if (! $this->validateData([], $validationRule)) {
+                return $this->respond([
+                    'error' => true,
+                    'message' => 'File yang di upload tidak valid'
+                ], 400);
+            }
+
+            // simpan file di public/uploads/
+
+            // di CI4 ada error yg gw gk ngerti
+            // kalau pake $file->store() ntar muncul
+            // mkdir(): No such file or directory
+            // sumpah gk ngerti gw kenapa begitu gk jelas
+            // makanya gw pake ini aja
+            $file_extension = explode(".", $_FILES["surat_izin_perdagangan"]["name"]);
+            $file_extension = $file_extension[count($file_extension) - 2];
+            $file_path = $file_extension . "." . $userInfo->uid . "_surat_izin_perdagangan.txt";
+            move_uploaded_file($_FILES["surat_izin_perdagangan"]["tmp_name"], FCPATH . "uploads/" . $file_path);
+            $tempData["surat_izin_perdagangan"] = $file_path;
+
+            // Seharusnya pake cara ini dit, sesuai dokumentasi ci4.
+            // if($surat_izin_perdagangan->isValid()) {
+            //     $file_extension = $surat_izin_perdagangan->guessExtension();
+            //     $filename = $file_extension . "." . $userInfo->uid . "_surat_izin_perdagangan.txt";
+            //     if(!$surat_izin_perdagangan->hasMoved()) {
+            //         $surat_izin_perdagangan->move(FCPATH . 'uploads', $filename);
+            //     }
+            //     $tempData["surat_izin_perdagangan"] = $filename;
+            // }
+
+            $file_extension = explode(".", $_FILES["scan_ktp"]["name"]);
+            $file_extension = $file_extension[count($file_extension) - 2];
+            $file_path = $file_extension . "." . $userInfo->uid . "_scan_ktp.txt";
+            move_uploaded_file($_FILES["scan_ktp"]["tmp_name"], FCPATH . "uploads/" . $file_path);
+            $tempData["scan_ktp"] = $file_path;
+
+            $file_extension = explode(".", $_FILES["selfie_ktp"]["name"]);
+            $file_extension = $file_extension[count($file_extension) - 2];
+            $file_path = $file_extension . "." . $userInfo->uid . "_selfie_ktp.txt";
+            move_uploaded_file($_FILES["selfie_ktp"]["tmp_name"], FCPATH . "uploads/" . $file_path);
+            $tempData["selfie_ktp"] = $file_path;
+
+            // Update data toko
+            $data = [];
+            $data_lama_user['data_toko'] = json_decode($data_lama_user['data_toko'], true);
+
+            if ($data_lama_user['tipe_akun'] === "Penjual") {
+                $data_lama_user['data_toko']['alamat'] = $alamat;
+                $data_lama_user['data_toko']['nama'] = $nama;
+                $data_lama_user['data_toko']['jenis'] = $jenis;
+                $data_lama_user['data_toko']['nib'] = $nib;
+                foreach ($tempData as $key => $value) {
+                    $data_lama_user['data_toko'][$key] = $value;
+                }
+                $data['data_toko'] = json_encode($data_lama_user['data_toko']);
+            } else {
+                return $this->respond([
+                    'error' => true,
+                    'message' => 'Akun anda bukan penjual'
+                ], 400);
+            }
+
+            if (!empty($data)) {
+
+                $data['uid'] = $userInfo->uid;
+                $this->usersModel->save($data);
+
+                $filter = array_filter($data, fn($k) => $k !== 'password' && $k !== 'uid', ARRAY_FILTER_USE_KEY);
+                return $this->respond([
+                    'error' => false,
+                    'message' => 'Berhasil',
+                    'data' => $filter,
+                ], 201);
+            }
+
             return $this->respond([
                 'error' => false,
                 'message' => 'Tidak ada yg diubah'

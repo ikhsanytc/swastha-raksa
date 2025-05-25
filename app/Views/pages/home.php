@@ -3,5 +3,5 @@
 <div class="container">
     <h1>Halo,</h1>
     <h4>Kunjungi <a href="https://dokumentasi-swastha-raksa.vercel.app/">dokumentasi-swastha-raksa.vercel.app</a> untuk dokumentasi.</h4>
+    <p>"<?= getenv('JWT_SECRET'); ?>"</p>
 </div>
-<?= $this->endSection() ?>

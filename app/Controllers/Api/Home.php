@@ -128,7 +128,7 @@ class Home extends BaseController
                 if ($checkProduct['owner_uid'] !== $user->uid) {
                     return $this->respond([
                         'error' => true,
-                        'message' => 'Product dengan bukan milik anda!'
+                        'message' => 'Product dengan id = ' . $id . ' bukan milik anda!'
                     ], 400);
                 }
                 $this->productsModel->delete($id);
@@ -175,13 +175,13 @@ class Home extends BaseController
             if (!$checkProduct) {
                 return $this->respond([
                     'error' => true,
-                    'message' => 'Produk tidak ada di database',
+                    'message' => 'Tidak ada produk dengan id = ' . $id,
                 ], 400);
             }
             if ($checkProduct['owner_uid'] !== $user->uid) {
                 return $this->respond([
                     'error' => true,
-                    'message' => 'Product bukan milik anda!'
+                    'message' => 'Product dengan id = ' . $id . ' bukan milik anda!'
                 ], 400);
             }
 
@@ -222,7 +222,7 @@ class Home extends BaseController
             if (!$userInfo) {
                 return $this->respond([
                     'error' => true,
-                    'message' => 'User tidak ditemukan',
+                    'message' => 'Tidak ada user dengan uid = ' . $user->uid,
                 ], 401);
             }
             if ($userInfo['tipe_akun'] !== 'Penjual') {
