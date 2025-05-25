@@ -217,7 +217,9 @@ class Auth extends BaseController
             $nama = $this->request->getVar("nama");
             $jenis = $this->request->getVar("jenis");
             $nib = $this->request->getVar("nib");
-            // $surat_izin_perdagangan = $this->request->getFile('surat_izin_perdagangan');
+            $surat_izin_perdagangan = $this->request->getFile('surat_izin_perdagangan');
+            $scan_ktp = $this->request->getFile('scan_ktp');
+            $selfie_ktp = $this->request->getFile('selfie_ktp');
             $data_lama_user = $this->usersModel->where('uid', $userInfo->uid)->first();
 
             if (!$data_lama_user) {
@@ -272,33 +274,56 @@ class Auth extends BaseController
             // mkdir(): No such file or directory
             // sumpah gk ngerti gw kenapa begitu gk jelas
             // makanya gw pake ini aja
-            $file_extension = explode(".", $_FILES["surat_izin_perdagangan"]["name"]);
-            $file_extension = $file_extension[count($file_extension) - 2];
-            $file_path = $file_extension . "." . $userInfo->uid . "_surat_izin_perdagangan.txt";
-            move_uploaded_file($_FILES["surat_izin_perdagangan"]["tmp_name"], FCPATH . "uploads/" . $file_path);
-            $tempData["surat_izin_perdagangan"] = $file_path;
+            // $file_extension = explode(".", $_FILES["surat_izin_perdagangan"]["name"]);
+            // $file_extension = $file_extension[count($file_extension) - 2];
+            // $file_path = $file_extension . "." . $userInfo->uid . "_surat_izin_perdagangan.txt";
+            // move_uploaded_file($_FILES["surat_izin_perdagangan"]["tmp_name"], FCPATH . "uploads/" . $file_path);
+            // $tempData["surat_izin_perdagangan"] = $file_path;
 
             // Seharusnya pake cara ini dit, sesuai dokumentasi ci4.
-            // if($surat_izin_perdagangan->isValid()) {
-            //     $file_extension = $surat_izin_perdagangan->guessExtension();
-            //     $filename = $file_extension . "." . $userInfo->uid . "_surat_izin_perdagangan.txt";
-            //     if(!$surat_izin_perdagangan->hasMoved()) {
-            //         $surat_izin_perdagangan->move(FCPATH . 'uploads', $filename);
-            //     }
-            //     $tempData["surat_izin_perdagangan"] = $filename;
-            // }
+            if ($surat_izin_perdagangan->isValid()) {
+                $file_extension = $surat_izin_perdagangan->guessExtension();
+                $filename = $file_extension . "." . $userInfo->uid . "_surat_izin_perdagangan.txt";
+                if (!$surat_izin_perdagangan->hasMoved()) {
+                    $surat_izin_perdagangan->move(FCPATH . 'uploads', $filename);
+                }
+                $tempData["surat_izin_perdagangan"] = $filename;
+            } else {
+                return $this->respond([
+                    'error' => true,
+                    'message' => "surat izin perdagangan tidak valid"
+                ], 400);
+            }
 
-            $file_extension = explode(".", $_FILES["scan_ktp"]["name"]);
-            $file_extension = $file_extension[count($file_extension) - 2];
-            $file_path = $file_extension . "." . $userInfo->uid . "_scan_ktp.txt";
-            move_uploaded_file($_FILES["scan_ktp"]["tmp_name"], FCPATH . "uploads/" . $file_path);
-            $tempData["scan_ktp"] = $file_path;
+            // $file_extension = explode(".", $_FILES["scan_ktp"]["name"]);
+            // $file_extension = $file_extension[count($file_extension) - 2];
+            // $file_path = $file_extension . "." . $userInfo->uid . "_scan_ktp.txt";
+            // move_uploaded_file($_FILES["scan_ktp"]["tmp_name"], FCPATH . "uploads/" . $file_path);
+            // $tempData["scan_ktp"] = $file_path;
 
-            $file_extension = explode(".", $_FILES["selfie_ktp"]["name"]);
-            $file_extension = $file_extension[count($file_extension) - 2];
-            $file_path = $file_extension . "." . $userInfo->uid . "_selfie_ktp.txt";
-            move_uploaded_file($_FILES["selfie_ktp"]["tmp_name"], FCPATH . "uploads/" . $file_path);
-            $tempData["selfie_ktp"] = $file_path;
+            if ($scan_ktp->isValid()) {
+                $file_extension = $scan_ktp->guessExtension();
+                $filename = $file_extension . "." . $userInfo->uid . "_scan_ktp.txt";
+                if (!$scan_ktp->hasMoved()) {
+                    $scan_ktp->move(FCPATH . 'uploads', $filename);
+                }
+                $tempData['scan_ktp'] = $filename;
+            }
+
+            // $file_extension = explode(".", $_FILES["selfie_ktp"]["name"]);
+            // $file_extension = $file_extension[count($file_extension) - 2];
+            // $file_path = $file_extension . "." . $userInfo->uid . "_selfie_ktp.txt";
+            // move_uploaded_file($_FILES["selfie_ktp"]["tmp_name"], FCPATH . "uploads/" . $file_path);
+            // $tempData["selfie_ktp"] = $file_path;
+
+            if ($selfie_ktp->isValid()) {
+                $file_extension = $selfie_ktp->guessExtension();
+                $filename = $file_extension . "." . $userInfo->uid . "_selfie_ktp.txt";
+                if (!$selfie_ktp->hasMoved()) {
+                    $selfie_ktp->move(FCPATH . 'uploads', $filename);
+                }
+                $tempData['selfie_ktp'] = $filename;
+            }
 
             // Update data toko
             $data = [];

@@ -34,9 +34,9 @@ RUN mkdir -p /var/www/html/writable/database /var/www/html/writable/cache /var/w
     chown -R www-data:www-data /var/www/html/writable && \
     chmod -R 775 /var/www/html/writable
 
-RUN mkdir -p /var/www/html/uploads && \
-    chown -R www-data:www-data /var/www/html/uploads && \
-    chmod -R 775 /var/www/html/uploads
+RUN mkdir -p /var/www/html/public/uploads && \
+    chown -R www-data:www-data /var/www/html/public/uploads && \
+    chmod -R 775 /var/www/html/public/uploads
 
 # Install dependencies composer tanpa dev dan optimasi autoloader
 RUN composer install --no-dev --optimize-autoloader
