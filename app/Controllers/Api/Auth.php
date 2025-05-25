@@ -308,6 +308,11 @@ class Auth extends BaseController
                     $scan_ktp->move(FCPATH . 'uploads', $filename);
                 }
                 $tempData['scan_ktp'] = $filename;
+            } else {
+                return $this->respond([
+                    'error' => true,
+                    'message' => "scan ktp tidak valid"
+                ], 400);
             }
 
             // $file_extension = explode(".", $_FILES["selfie_ktp"]["name"]);
@@ -323,6 +328,11 @@ class Auth extends BaseController
                     $selfie_ktp->move(FCPATH . 'uploads', $filename);
                 }
                 $tempData['selfie_ktp'] = $filename;
+            } else {
+                return $this->respond([
+                    'error' => true,
+                    'message' => "selfie ktp tidak valid"
+                ], 400);
             }
 
             // Update data toko
