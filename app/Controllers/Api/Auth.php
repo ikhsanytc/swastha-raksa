@@ -304,7 +304,7 @@ class Auth extends BaseController
             // $tempData["scan_ktp"] = $file_path;
 
             if ($scan_ktp->isValid()) {
-                $file_name = $surat_izin_perdagangan->getName();
+                $file_name = $scan_ktp->getName();
                 $parts = explode(".", $file_name);
                 $file_extension = $parts[count($parts) - 2];
                 $filename = $file_extension . "." . $userInfo->uid . "_scan_ktp.txt";
@@ -326,7 +326,7 @@ class Auth extends BaseController
             // $tempData["selfie_ktp"] = $file_path;
 
             if ($selfie_ktp->isValid()) {
-                $file_name = $surat_izin_perdagangan->getName();
+                $file_name = $selfie_ktp->getName();
                 $parts = explode(".", $file_name);
                 $file_extension = $parts[count($parts) - 2];
                 $filename = $file_extension . "." . $userInfo->uid . "_selfie_ktp.txt";
