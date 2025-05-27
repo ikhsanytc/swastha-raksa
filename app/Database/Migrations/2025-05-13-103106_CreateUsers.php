@@ -12,7 +12,6 @@ class CreateUsers extends Migration
             'uid' => [
                 'type' => 'VARCHAR',
                 'constraint' => 255,
-                'null' => false,
             ],
             'username' => [
                 'type' => 'VARCHAR',

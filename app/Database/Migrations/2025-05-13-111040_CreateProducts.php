@@ -13,7 +13,6 @@ class CreateProducts extends Migration
                 'type' => 'INT',
                 'constraint' => 11,
                 'auto_increment' => true,
-                'null' => true,
             ],
             'owner_uid' => [
                 'type' => 'VARCHAR',

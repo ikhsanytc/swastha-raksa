@@ -235,35 +235,21 @@ class Auth extends BaseController
             // Validasi input file
             $validationRule = [
                 'surat_izin_perdagangan' => [
-                    'label' => 'File',
-                    'rules' => [
-                        'uploaded[surat_izin_perdagangan]',
-                        'mime_in[surat_izin_perdagangan,text/plain]',
-                        'max_size[surat_izin_perdagangan,10000]',
-                    ],
+                    'rules' => 'uploaded[surat_izin_perdagangan]|mime_in[surat_izin_perdagangan,text/plain]|max_size[surat_izin_perdagangan,10000]',
                 ],
                 'scan_ktp' => [
-                    'label' => 'File',
-                    'rules' => [
-                        'uploaded[scan_ktp]',
-                        'mime_in[scan_ktp,text/plain]',
-                        'max_size[scan_ktp,10000]',
-                    ],
+                    'rules' => 'uploaded[scan_ktp]|mime_in[scan_ktp,text/plain]|max_size[scan_ktp,10000]',
                 ],
                 'selfie_ktp' => [
-                    'label' => 'File',
-                    'rules' => [
-                        'uploaded[selfie_ktp]',
-                        'mime_in[selfie_ktp,text/plain]',
-                        'max_size[selfie_ktp,10000]',
-                    ],
+                    'rules' => 'uploaded[selfie_ktp]|mime_in[selfie_ktp,text/plain]|max_size[selfie_ktp,10000]',
                 ],
             ];
 
-            if (! $this->validateData([], $validationRule)) {
+            if (! $this->validate($validationRule)) {
                 return $this->respond([
                     'error' => true,
-                    'message' => 'File yang di upload tidak valid'
+                    'message' => 'File yang di upload tidak valid',
+                    'errorData' => $this->validator->getErrors(),
                 ], 400);
             }
 

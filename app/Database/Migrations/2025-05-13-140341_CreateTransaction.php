@@ -13,7 +13,6 @@ class CreateTransaction extends Migration
                 'type' => 'INT',
                 'constraint' => 11,
                 'auto_increment' => true,
-                'null' => true,
             ],
             'seller_uid' => [
                 'type' => 'VARCHAR',

@@ -13,7 +13,6 @@ class CreateBlacklistKey extends Migration
                 'type' => 'INT',
                 'constraint' => 11,
                 'auto_increment' => true,
-                'null' => true,
             ],
             'key' => [
                 'type' => 'TEXT'

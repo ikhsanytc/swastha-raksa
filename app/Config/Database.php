@@ -24,22 +24,8 @@ class Database extends Config
      *
      * @var array<string, mixed>
      */
-    public array $default = [
-        'database'    => WRITEPATH . 'database' . DIRECTORY_SEPARATOR . 'db.sqlite',
-        'DBDriver'    => 'SQLite3',
-        'DBPrefix'    => 'swastha_raksa_',
-        'DBDebug'     => true,
-        'swapPre'     => '',
-        'failover'    => [],
-        'foreignKeys' => true,
-        'busyTimeout' => 1000,
-        'synchronous' => null,
-        'dateFormat'  => [
-            'date'     => 'Y-m-d',
-            'datetime' => 'Y-m-d H:i:s',
-            'time'     => 'H:i:s',
-        ],
-    ];
+    public $default = [];
+
 
 
     //    /**
@@ -189,6 +175,33 @@ class Database extends Config
         // we don't overwrite live data on accident.
         if (ENVIRONMENT === 'testing') {
             $this->defaultGroup = 'tests';
+        }
+        if (ENVIRONMENT === 'development') {
+            $this->default = [
+                'DSN'      => '',
+                'hostname' => 'localhost',
+                'username' => 'root',
+                'password' => '',
+                'database' => 'swastha_raksa',
+                'DBDriver' => 'MySQLi',
+                'DBPrefix' => 'swastha_raksa_',
+                'port'     => 3306,
+                'charset'  => 'utf8mb4',
+                'DBCollat' => 'utf8mb4_general_ci',
+            ];
+        } else { // production
+            $this->default = [
+                'DSN'      => '',
+                'hostname' => 'shortline.proxy.rlwy.net',
+                'username' => 'root',
+                'password' => 'dOBXxUFolIyeQhwbQRtRnBpIrCdFKDTf',
+                'database' => 'railway',
+                'DBDriver' => 'MySQLi',
+                'DBPrefix' => 'swastha_raksa_',
+                'port'     => 26202,
+                'charset'  => 'utf8mb4',
+                'DBCollat' => 'utf8mb4_general_ci',
+            ];
         }
     }
 }
