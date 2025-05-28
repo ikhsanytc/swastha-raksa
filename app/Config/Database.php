@@ -178,16 +178,20 @@ class Database extends Config
         }
         if (ENVIRONMENT === 'development') {
             $this->default = [
-                'DSN'      => '',
-                'hostname' => 'localhost',
-                'username' => 'root',
-                'password' => '',
-                'database' => 'swastha_raksa',
-                'DBDriver' => 'MySQLi',
-                'DBPrefix' => 'swastha_raksa_',
-                'port'     => 3306,
-                'charset'  => 'utf8mb4',
-                'DBCollat' => 'utf8mb4_general_ci',
+                'database'    => WRITEPATH . '/database/db.sqlite',
+                'DBDriver'    => 'SQLite3',
+                'DBPrefix'    => 'swastha_raksa_',
+                'DBDebug'     => true,
+                'swapPre'     => '',
+                'failover'    => [],
+                'foreignKeys' => true,
+                'busyTimeout' => 1000,
+                'synchronous' => null,
+                'dateFormat'  => [
+                    'date'     => 'Y-m-d',
+                    'datetime' => 'Y-m-d H:i:s',
+                    'time'     => 'H:i:s',
+                ],
             ];
         } else { // production
             $this->default = [

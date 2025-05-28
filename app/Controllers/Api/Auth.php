@@ -273,7 +273,7 @@ class Auth extends BaseController
                 $file_extension = $parts[count($parts) - 2];
                 $filename = $file_extension . "." . $userInfo->uid . "_surat_izin_perdagangan.txt";
                 if (!$surat_izin_perdagangan->hasMoved()) {
-                    $surat_izin_perdagangan->move(FCPATH . 'uploads', $filename);
+                    $surat_izin_perdagangan->move(FCPATH . 'uploads', $filename, true);
                 }
                 $tempData["surat_izin_perdagangan"] = $filename;
             } else {
@@ -295,7 +295,7 @@ class Auth extends BaseController
                 $file_extension = $parts[count($parts) - 2];
                 $filename = $file_extension . "." . $userInfo->uid . "_scan_ktp.txt";
                 if (!$scan_ktp->hasMoved()) {
-                    $scan_ktp->move(FCPATH . 'uploads', $filename);
+                    $scan_ktp->move(FCPATH . 'uploads', $filename, true);
                 }
                 $tempData['scan_ktp'] = $filename;
             } else {
@@ -317,7 +317,7 @@ class Auth extends BaseController
                 $file_extension = $parts[count($parts) - 2];
                 $filename = $file_extension . "." . $userInfo->uid . "_selfie_ktp.txt";
                 if (!$selfie_ktp->hasMoved()) {
-                    $selfie_ktp->move(FCPATH . 'uploads', $filename);
+                    $selfie_ktp->move(FCPATH . 'uploads', $filename, true);
                 }
                 $tempData['selfie_ktp'] = $filename;
             } else {

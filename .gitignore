@@ -64,6 +64,7 @@ writable/debugbar/*
 !writable/debugbar/.gitkeep
 
 writable/database/*
+writable/database/db.sqlite
 
 php_errors.log
 
