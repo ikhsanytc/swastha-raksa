@@ -1,0 +1,27 @@
+{
+  "name": "swastha-raksa",
+  "version": "1.0.0",
+  "description": "Backend swastha raksa ci4.",
+  "main": "tailwind.config.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ikhsanytc/swastha-raksa.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ikhsanytc/swastha-raksa/issues"
+  },
+  "homepage": "https://github.com/ikhsanytc/swastha-raksa#readme",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.8",
+    "tailwindcss": "^4.1.8"
+  }
+}

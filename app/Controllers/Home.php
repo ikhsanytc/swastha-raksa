@@ -9,7 +9,9 @@ class Home extends BaseController
     use ResponseTrait;
     public function index(): string
     {
-        return view('pages/home');
+        return view('pages/home', [
+            'env_check' => getenv('JWT_SECRET') ? 'ada' : "tidak ada",
+        ]);
     }
     public function notFound()
     {

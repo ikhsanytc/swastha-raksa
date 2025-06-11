@@ -33,3 +33,7 @@ Pengaturan Akun
 5. Menambahkan data toko (khusus penjual)
 
 rDfX#-wv3t3P4YB
+
+Jika dalam mode development maka database akan menggunakan sqlite, jika diganti ke production maka database ganti ke mysql server railway.
+
+Jika mau ubah setelan database ini bisa edit di app/Config/Database.php

@@ -129,3 +129,6 @@ _modules/*
 /phpunit*.xml
 
 .env
+.env.*
+node_modules/
+package-lock.json

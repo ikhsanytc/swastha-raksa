@@ -18,6 +18,14 @@ $routes->group('api/auth', function (RouteCollection $routes) {
     $routes->post('register', 'Api\Auth::register'); // untuk register
 });
 
+$routes->group('backup', function (RouteCollection $routes) {
+    $routes->get('/', 'Backup::index');
+    $routes->get('download', 'Backup::downloadUploadsZip');
+    $routes->post('upload', 'Backup::uploadZip');
+    $routes->delete('delete', 'Backup::deleteUploads');
+});
+
+
 $routes->get('/api/check_uid_ktp/(:any)', 'Api\Home::checkUidKtp/$1'); // untuk mengecek uid ktp ada apa gak di database, tidak memerlukan token untuk mengakses endpoint ini.
 
 // API, perlu token untuk mengakses endpoint ini
