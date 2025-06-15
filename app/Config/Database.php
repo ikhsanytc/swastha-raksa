@@ -196,13 +196,13 @@ class Database extends Config
         } else { // production
             $this->default = [
                 'DSN'      => '',
-                'hostname' => 'shortline.proxy.rlwy.net',
+                'hostname' => 'hopper.proxy.rlwy.net',
                 'username' => 'root',
-                'password' => 'dOBXxUFolIyeQhwbQRtRnBpIrCdFKDTf',
+                'password' => 'QevFInJIVHGpTPugfZRCQUJmChxXvoqH',
                 'database' => 'railway',
                 'DBDriver' => 'MySQLi',
                 'DBPrefix' => 'swastha_raksa_',
-                'port'     => 26202,
+                'port'     => 44647,
                 'charset'  => 'utf8mb4',
                 'DBCollat' => 'utf8mb4_general_ci',
             ];
